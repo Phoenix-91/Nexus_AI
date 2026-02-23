@@ -8,8 +8,8 @@
 ![Status](https://img.shields.io/badge/Status-Production-22c55e?style=for-the-badge)
 ![License](https://img.shields.io/badge/License-MIT-3b82f6?style=for-the-badge)
 
-**A production-grade, web-based AI Interview Simulator with real-time voice conversation,  
-resume-aware questioning, multi-LLM support, and premium glassmorphism UI.**
+**A web-based AI Interview Simulator with real-time voice conversation,  
+resume-aware questioning, multi-LLM support, and stunning glassmorphism UI.**
 
 [✨ Features](#-features) • [🏗 Architecture](#️-architecture) • [🚀 Quick Start](#-quick-start) • [📡 API Reference](#-api-reference) • [🤝 Contributing](#-contributing)
 
