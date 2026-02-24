@@ -34,23 +34,27 @@ resume-aware questioning, multi-LLM support, and stunning glassmorphism UI.**
 
 ## 📸 Screenshots
 
-### Landing Page
+### 🚀 Landing Page
 
-<div align="center">
-  <img src="screenshots/landingPage.png" alt="Landing Page" width="800"/>
-</div>
+<p align="center">
+  <img src="./screenshots/LandingPage.png" width="800" />
+</p>
 
-### Second Image
+---
 
-<div align="center">
-  <img src="screenshots/2nd Image.png" alt="Second Image" width="800"/>
-</div>
+### 🎯 Interview Interface
 
-### Email Automation Page
+<p align="center">
+  <img src="./screenshots/InterviewInterface.png" width="800" />
+</p>
 
-<div align="center">
-  <img src="screenshots/Email automation page.png" alt="Email Automation Page" width="800"/>
-</div>
+---
+
+### 📧 Email Automation Page
+
+<p align="center">
+  <img src="./screenshots/EmailAutomationPage.png" width="800" />
+</p>
 
 ---
 
