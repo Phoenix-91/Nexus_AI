@@ -4,7 +4,7 @@
 <h3>AI-Powered Interview Preparation Platform</h3>
 
 ![NEXUS.AI](https://img.shields.io/badge/NEXUS.AI-Platform-6366f1?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0id2hpdGUiIGQ9Ik0xMiAyQzYuNDggMiAyIDYuNDggMiAxMnM0LjQ4IDEwIDEwIDEwIDEwLTQuNDggMTAtMTBTMTcuNTIgMiAxMiAyem0tMSAxNXYtNEg3bDUtOXY0aDRsLTUgOXoiLz48L3N2Zz4=)
-![Version](https://img.shields.io/badge/Version-2.0-8b5cf6?style=for-the-badge)
+![Version](https://img.shields.io/badge/Version-2.1-8b5cf6?style=for-the-badge)
 ![Status](https://img.shields.io/badge/Status-Production-22c55e?style=for-the-badge)
 ![License](https://img.shields.io/badge/License-MIT-3b82f6?style=for-the-badge)
 
@@ -23,9 +23,10 @@ resume-aware questioning, multi-LLM support, and stunning glassmorphism UI.**
 |---|---|
 | 🎙️ **Conversational Voice AI** | Real-time voice interviews powered by Deepgram STT + TTS (Stella voice) |
 | 🤖 **Resume-Aware Questions** | AI extracts your skills and tailors every question to your background |
-| 🧬 **Multi-LLM Backend** | Supports Groq (Llama 3.1), Claude, and Gemini models |
+| 🧬 **Multi-LLM Backend** | Supports Groq (Llama 3.3), Claude, and Gemini models |
 | 📊 **Smart Analytics** | Scores across Technical, Communication, Problem-Solving axes |
 | 📄 **30-Day Action Plan** | Auto-generated personalized improvement roadmap |
+| 📋 **ATS Score Checker** | Upload your resume + pick a job role → get AI-powered ATS score with keyword gaps, skills radar, and improvement tips |
 | 🔐 **Secure Auth** | Clerk-powered authentication with JWT token verification |
 | 💎 **Premium UI** | Glassmorphism dark theme with Aceternity UI effects |
 | 🔄 **Auto-Flow Interview** | Silence detection → auto-stop → auto-transcribe, no buttons needed |
@@ -84,7 +85,8 @@ User (Browser) ──► Frontend (React)
                         ├──► Backend /api/resume     ──► MongoDB
                         ├──► Backend /api/interview  ──► AI Service (FastAPI)
                         ├──► Backend /api/transcribe ──► Deepgram STT
-                        └──► Backend /api/speak      ──► Deepgram TTS
+                        ├──► Backend /api/speak      ──► Deepgram TTS
+                        └──► Backend /api/ats        ──► AI Service /ai/analyze-ats (PyPDF2 + Groq)
 ```
 
 ---
@@ -106,10 +108,13 @@ nexus-ai/
 │   │   │   └── useAudioRecorder.js           # MediaRecorder wrapper
 │   │   ├── pages/
 │   │   │   ├── Landing.jsx         # Public landing page
-│   │   │   ├── Dashboard.jsx       # User dashboard
+│   │   │   ├── Dashboard.jsx       # User dashboard (Tools dropdown)
 │   │   │   ├── InterviewSetup.jsx  # Resume upload + role selection
 │   │   │   ├── InterviewSession.jsx# Live interview (conversational)
-│   │   │   └── Report.jsx          # Post-interview analytics
+│   │   │   ├── Report.jsx          # Post-interview analytics
+│   │   │   └── ATSChecker/
+│   │   │       ├── Upload.jsx      # Resume upload + job role picker
+│   │   │       └── Report.jsx      # ATS score, charts, suggestions, PDF download
 │   │   ├── services/               # Axios API clients
 │   │   ├── store/                  # Zustand global state
 │   │   └── utils/
@@ -122,13 +127,15 @@ nexus-ai/
 │   │   │   ├── transcription.controller.js   # Deepgram STT
 │   │   │   ├── tts.controller.js             # Deepgram TTS (Stella)
 │   │   │   ├── resume.controller.js
-│   │   │   └── report.controller.js
+│   │   │   ├── report.controller.js
+│   │   │   └── ats.controller.js             # ATS analysis + PDF download
 │   │   ├── routes/                 # Express routers
-│   │   ├── models/                 # Mongoose schemas
+│   │   ├── models/                 # Mongoose schemas (atsReport.model.js)
 │   │   ├── middleware/             # Clerk auth, Multer upload
 │   │   ├── services/
 │   │   │   ├── deepgramService.js  # STT + TTS integration
 │   │   │   ├── aiService.js        # FastAPI bridge
+│   │   │   ├── ats.service.js      # pdf-parse + Groq fallback
 │   │   │   └── claudeService.js
 │   │   └── server.js
 │   └── package.json
@@ -138,11 +145,13 @@ nexus-ai/
 │   │   ├── routers/
 │   │   │   ├── interview.py        # Conversation generation
 │   │   │   ├── resume.py           # PDF parsing
-│   │   │   └── report.py           # Analytics generation
+│   │   │   ├── report.py           # Analytics generation
+│   │   │   └── ats.py              # ATS resume analysis endpoint
 │   │   ├── services/
 │   │   │   ├── interview_engine.py # LangChain conversation
 │   │   │   ├── resume_parser.py    # PyPDF2 + AI extraction
-│   │   │   └── report_generator.py # Scoring + action plan
+│   │   │   ├── report_generator.py # Scoring + action plan
+│   │   │   └── ats_analyzer.py     # PyPDF2 + keyword match + Groq ATS
 │   │   ├── models/                 # Pydantic schemas
 │   │   ├── utils/
 │   │   │   └── llm_client.py       # Groq / Claude / Gemini router
@@ -259,6 +268,27 @@ Open **http://localhost:5173** in Chrome or Edge.
 5. View Report      →  Scores, strengths, weaknesses, 30-day plan
 ```
 
+### ATS Score Checker Flow
+
+```
+1. Dashboard  →  Tools  →  ATS Score Checker
+         │
+2. Upload Resume  →  PDF, max 5MB
+         │
+3. Select Job Role  →  15 roles available
+         │
+4. AI Analysis  →  Python PyPDF2 extracts text
+         │           Groq Llama 3.3 scores the resume
+         │           Rule-based keyword matching
+         │
+5. View Report  →  Overall ATS Score (0-100)
+                    Category scores (Keywords, Format, Experience, Skills)
+                    Skills Radar Chart
+                    Missing & Found keywords
+                    AI-powered suggestions
+                    Download full PDF report
+```
+
 ---
 
 ## 📡 API Reference
@@ -293,16 +323,25 @@ Open **http://localhost:5173** in Chrome or Edge.
 |--------|----------|-------------|
 | `GET` | `/report/:sessionId` | Get full interview report |
 
+#### ATS Score Checker
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/ats/analyze` | Upload PDF resume + job role → returns `reportId` |
+| `GET` | `/ats/report/:reportId` | Fetch stored ATS report |
+| `GET` | `/ats/download/:reportId` | Download ATS report as PDF |
+
 ---
 
 ### AI Service — `http://localhost:8000`
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| `POST` | `/interview/start` | Generate opening question |
-| `POST` | `/interview/message` | Process answer, return next question |
-| `POST` | `/resume/parse` | Extract resume structure |
-| `POST` | `/report/generate` | Generate analytics + action plan |
+| `POST` | `/ai/interview/start` | Generate opening question |
+| `POST` | `/ai/interview/message` | Process answer, return next question |
+| `POST` | `/ai/parse-resume` | Extract resume structure |
+| `POST` | `/ai/report/generate` | Generate analytics + action plan |
+| `POST` | `/ai/analyze-ats` | PyPDF2 extraction + Groq ATS analysis |
 
 ---
 
@@ -315,6 +354,7 @@ Open **http://localhost:5173** in Chrome or Edge.
 | Tailwind CSS | Utility-first styling |
 | shadcn/ui | Accessible component primitives |
 | Aceternity UI | AuroraBackground, MovingBorder, SpotlightCard |
+| Recharts | ATS score charts (Pie, Bar, Radar) |
 | Zustand | Lightweight global state |
 | Clerk | Authentication UI |
 | Axios | HTTP client |
@@ -326,6 +366,8 @@ Open **http://localhost:5173** in Chrome or Edge.
 | MongoDB + Mongoose | Document database |
 | Clerk SDK | JWT token verification |
 | Multer | Resume file uploads |
+| pdf-parse | PDF text extraction (Node.js fallback) |
+| pdfkit | ATS report PDF generation |
 | Deepgram SDK | Speech-to-text + Text-to-speech |
 | Helmet.js | Security headers |
 
@@ -334,8 +376,8 @@ Open **http://localhost:5173** in Chrome or Edge.
 |---|---|
 | FastAPI | High-performance Python API |
 | LangChain | Conversation chain management |
-| Groq (Llama 3.1 70B) | Primary LLM |
-| PyPDF2 | Resume PDF parsing |
+| Groq (Llama 3.3 70B) | Primary LLM |
+| PyPDF2 | Resume PDF parsing + ATS text extraction |
 | Pydantic | Schema validation |
 
 ---
