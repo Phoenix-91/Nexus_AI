@@ -13,6 +13,7 @@ import reportRoutes from './routes/report.routes.js';
 import emailRoutes from './routes/email.routes.js';
 import transcriptionRoutes from './routes/transcription.routes.js';
 import ttsRoutes from './routes/tts.routes.js';
+import atsRoutes from './routes/ats.routes.js';
 
 // ES module __dirname equivalent
 const __filename = fileURLToPath(import.meta.url);
@@ -52,6 +53,7 @@ app.use('/api/report', reportRoutes);
 app.use('/api/email', emailRoutes);
 app.use('/api', transcriptionRoutes); // Transcription routes
 app.use('/api', ttsRoutes); // Text-to-speech routes (Thalia voice)
+app.use('/api/ats', atsRoutes); // ATS Score Checker routes
 
 // Health check
 app.get('/health', (req, res) => {

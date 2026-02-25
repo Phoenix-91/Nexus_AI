@@ -8,6 +8,8 @@ import InterviewSetup from './pages/InterviewSetup'
 import InterviewSession from './pages/InterviewSession'
 import Report from './pages/Report'
 import EmailAutomation from './pages/EmailAutomation'
+import ATSUpload from './pages/ATSChecker/Upload'
+import ATSReport from './pages/ATSChecker/Report'
 
 function ProtectedRoute({ children }) {
   return (
@@ -69,6 +71,22 @@ function App() {
         element={
           <ProtectedRoute>
             <EmailAutomation />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/tools/ats-checker"
+        element={
+          <ProtectedRoute>
+            <ATSUpload />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/tools/ats-checker/report/:reportId"
+        element={
+          <ProtectedRoute>
+            <ATSReport />
           </ProtectedRoute>
         }
       />

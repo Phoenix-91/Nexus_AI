@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { UserButton, useUser } from '@clerk/clerk-react';
-import { Brain, Plus, Clock, Award, TrendingUp, Wrench, Mail, ChevronDown } from 'lucide-react';
+import { Brain, Plus, Clock, Award, TrendingUp, Wrench, Mail, FileText, ChevronDown } from 'lucide-react';
 import { GlassCard } from '@/components/common/GlassCard';
 import { Button } from '@/components/ui/button';
 import { Loader } from '@/components/common/Loader';
@@ -76,6 +76,19 @@ export default function Dashboard() {
                                         <div className="text-left">
                                             <div className="text-white font-medium">Email Automation</div>
                                             <div className="text-xs text-gray-400">AI-powered email composer</div>
+                                        </div>
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            navigate('/tools/ats-checker');
+                                            setShowToolsMenu(false);
+                                        }}
+                                        className="w-full flex items-center space-x-3 px-4 py-3 hover:bg-purple-600/20 transition-colors rounded-lg"
+                                    >
+                                        <FileText className="w-5 h-5 text-blue-400" />
+                                        <div className="text-left">
+                                            <div className="text-white font-medium">ATS Score Checker</div>
+                                            <div className="text-xs text-gray-400">AI resume analyzer</div>
                                         </div>
                                     </button>
                                 </div>

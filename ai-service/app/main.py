@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import resume, interview, report
+from app.routers import resume, interview, report, ats
 
 app = FastAPI(
     title="NEXUS.AI - AI Interview Service",
@@ -21,6 +21,7 @@ app.add_middleware(
 app.include_router(resume.router)
 app.include_router(interview.router)
 app.include_router(report.router)
+app.include_router(ats.router)
 
 @app.get("/")
 async def root():
