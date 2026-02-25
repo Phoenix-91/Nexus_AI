@@ -4,7 +4,7 @@ export function TextGenerateEffect({ words, className }) {
     const wordsArray = words.split(" ");
 
     return (
-        <div className={className}>
+        <span className={className}>
             {wordsArray.map((word, idx) => (
                 <motion.span
                     key={word + idx}
@@ -14,11 +14,12 @@ export function TextGenerateEffect({ words, className }) {
                         duration: 0.5,
                         delay: idx * 0.1,
                     }}
-                    className="inline-block mr-1"
+                    className="inline-block mr-[0.25em]"
                 >
                     {word}
                 </motion.span>
             ))}
-        </div>
+        </span>
     );
 }
+
