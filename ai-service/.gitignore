@@ -57,6 +57,8 @@ Thumbs.db
 *.log
 logs/
 
-# Model cache (Hugging Face, etc.)
+# Model cache (Hugging Face, etc.) — only ignore top-level cache, not app/models package
 .cache/
-models/
+.cache/models/
+# Explicitly allow the app/models Python package
+!app/models/
