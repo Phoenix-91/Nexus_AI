@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom'
 import { ClerkProvider } from '@clerk/clerk-react'
 import App from './App.jsx'
 import './index.css'
+import { startKeepAlive } from './utils/keepAlive'
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
 
@@ -20,3 +21,5 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     </ClerkProvider>
   </React.StrictMode>,
 )
+
+startKeepAlive()

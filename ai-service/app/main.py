@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from datetime import datetime
 from app.routers import resume, interview, report, ats
 
 app = FastAPI(
@@ -33,7 +34,12 @@ async def root():
 
 @app.get("/health")
 async def health_check():
-    return {"status": "healthy"}
+    return {
+        "status": "ok",
+        "service": "nexus-ai-service",
+        "version": "2.1.0",
+        "timestamp": datetime.utcnow().isoformat(),
+    }
 
 if __name__ == "__main__":
     import uvicorn

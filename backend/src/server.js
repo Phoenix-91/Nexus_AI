@@ -36,8 +36,23 @@ if (!fs.existsSync(uploadsDir)) {
 // Middleware
 app.use(helmet());
 app.use(cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+    origin: function (origin, callback) {
+        const allowed = [
+            process.env.FRONTEND_URL,
+            'http://localhost:5173',
+            'http://localhost:3000',
+        ].filter(Boolean);
+        // Allow requests with no origin (Postman, mobile apps, curl)
+        if (!origin) return callback(null, true);
+        if (allowed.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
 }));
 app.use(morgan('dev'));
 app.use(express.json());
@@ -55,10 +70,39 @@ app.use('/api', transcriptionRoutes); // Transcription routes
 app.use('/api', ttsRoutes); // Text-to-speech routes (Thalia voice)
 app.use('/api/ats', atsRoutes); // ATS Score Checker routes
 
-// Health check
-app.get('/health', (req, res) => {
-    res.json({ status: 'ok', message: 'NEXUS.AI Backend is running' });
+// Rich health check — used by Docker HEALTHCHECK + CI/CD pipeline
+app.get('/api/health', async (req, res) => {
+    let mongoStatus = 'disconnected';
+    let aiStatus = 'unreachable';
+
+    try {
+        const mongoose = (await import('./config/db.js')).default;
+        // connectDB exports the mongoose instance via module scope
+        const { connection } = await import('mongoose');
+        await connection.db.admin().ping();
+        mongoStatus = 'connected';
+    } catch (e) { }
+
+    try {
+        const response = await fetch(
+            (process.env.PYTHON_AI_SERVICE_URL || 'http://localhost:8000') + '/health',
+            { signal: AbortSignal.timeout(3000) }
+        );
+        if (response.ok) aiStatus = 'reachable';
+    } catch (e) { }
+
+    res.json({
+        status: 'ok',
+        service: 'nexus-backend',
+        version: '2.1.0',
+        timestamp: new Date().toISOString(),
+        mongo: mongoStatus,
+        aiService: aiStatus,
+    });
 });
+
+// Legacy /health alias
+app.get('/health', (req, res) => res.redirect('/api/health'));
 
 // Error handling middleware
 app.use((err, req, res, next) => {
